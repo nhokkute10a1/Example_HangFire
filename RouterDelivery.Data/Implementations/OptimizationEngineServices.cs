@@ -25,7 +25,9 @@ namespace RouterDelivery.Services.Implementations
                     Id = x.Id,
                     RequestDate = x.RequestDate,
                     ScheduleDate = x.ScheduleDate,
-                    StatusId = x.StatusId
+                    StatusId = x.StatusId,
+                    OptimizeAfterMinuntes = (int)x.OptimizeAfterMinuntes,
+                    RecurringSchedule = x.RecurringSchedule
                 }).ToList();
             return query;
         }
@@ -38,7 +40,9 @@ namespace RouterDelivery.Services.Implementations
                 Id = query.Id,
                 RequestDate = query.RequestDate,
                 ScheduleDate = query.ScheduleDate,
-                StatusId = query.StatusId
+                StatusId = query.StatusId,
+                OptimizeAfterMinuntes = (int)query.OptimizeAfterMinuntes,
+                RecurringSchedule = query.RecurringSchedule
             };
         }
 
@@ -50,7 +54,10 @@ namespace RouterDelivery.Services.Implementations
                 {
                     RequestDate = dto.RequestDate,
                     ScheduleDate = dto.ScheduleDate,
-                    StatusId = dto.StatusId
+                    StatusId = dto.StatusId,
+                    OptimizeAfterMinuntes = dto.OptimizeAfterMinuntes,
+                    OptimizeDateTime = dto.OptimizeDateTime,
+                    RecurringSchedule = dto.RecurringSchedule
                 };
                 _uow.OptimizationRequests.Add(model);
                 _uow.SaveChanges();
@@ -73,6 +80,9 @@ namespace RouterDelivery.Services.Implementations
                     data.RequestDate = dto.RequestDate;
                     data.ScheduleDate = dto.ScheduleDate;
                     data.StatusId = dto.StatusId;
+                    data.OptimizeAfterMinuntes = dto.OptimizeAfterMinuntes;
+                    data.OptimizeDateTime = dto.OptimizeDateTime;
+                    data.RecurringSchedule = dto.RecurringSchedule;
 
                     _uow.OptimizationRequests.Update(data);
                     _uow.SaveChanges();

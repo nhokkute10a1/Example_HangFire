@@ -98,8 +98,9 @@ namespace WebApp_HangFire.Controllers
 
             await Task.Run(() => _optimizationEngineServices.Insert(dto, out Status));
 
-            var cronType = GetCronFromRecurringType(dto.);
-            BackgroundJob.Enqueue(() => _optimizationEngine.OptimizeDeliveries(_optimizationEngineServices.GetIdLasted().Id));
+            var cronType = GetCronFromRecurringType(dto.RecurringSchedule);
+            RecurringJob.AddOrUpdate(_optimizationEngineServices.GetIdLasted().Id.ToString(),
+                () => _optimizationEngine.OptimizeDeliveries(_optimizationEngineServices.GetIdLasted().Id), cronType);
 
             if (Status)
             {
@@ -125,9 +126,12 @@ namespace WebApp_HangFire.Controllers
             var Message = string.Empty;
             var Result = new Res();
 
-            BackgroundJob.Enqueue(() => _optimizationEngineServices.Update(dto, out Status));
-
             await Task.Run(() => _optimizationEngineServices.Update(dto, out Status));
+
+            var cronType = GetCronFromRecurringType(dto.RecurringSchedule);
+            RecurringJob.AddOrUpdate(_optimizationEngineServices.GetIdLasted().Id.ToString(),
+                () => _optimizationEngine.OptimizeDeliveries(_optimizationEngineServices.GetIdLasted().Id), cronType);
+
             if (Status)
             {
                 Result.Status = true;
@@ -152,10 +156,14 @@ namespace WebApp_HangFire.Controllers
             var Message = string.Empty;
             var Result = new Res();
 
-            BackgroundJob.Enqueue(() => _optimizationEngineServices.Delete(id, out Status));
+            var OptimizationRequestDel = _optimizationEngineServices.GetEdit(id);
+            if (OptimizationRequestDel != null)
+            {
+                OptimizationRequestDel.StatusId = 5;
+                await Task.Run(() => _optimizationEngineServices.Update(OptimizationRequestDel, out Status));
+                RecurringJob.RemoveIfExists(OptimizationRequestDel.Id.ToString());
+            }
 
-
-            await Task.Run(() => _optimizationEngineServices.Delete(id, out Status));
             if (Status)
             {
                 Result.Status = true;
@@ -172,7 +180,21 @@ namespace WebApp_HangFire.Controllers
             return Ok(Result);
         }
 
-        private Func<string> GetCronFromRecurringType(CommonContanst.RecurringScheduleType recurringSchedule)
+        [HttpGet("run-trigger/{id}")]
+        public IActionResult RunTrigger(int id)
+        {
+            try
+            {
+                RecurringJob.Trigger(id.ToString());
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        private Func<string> GetCronFromRecurringType(string recurringSchedule)
         {
             switch (recurringSchedule)
             {

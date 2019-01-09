@@ -15,14 +15,14 @@ namespace LibCommon.Common
             Removed
         }
 
-        public enum RecurringScheduleType
+        public struct RecurringScheduleType
         {
-            Daily,
-            Hourly,
-            Minutely,
-            Monthly,
-            Weekly,
-            Yearly
+            public const string Daily = "Daily";
+            public const string Hourly = " Hourly";
+            public const string Minutely = " Minutely";
+            public const string Monthly = " Monthly";
+            public const string Weekly = " Weekly";
+            public const string Yearly = "Yearly";
         }
     }
 }
